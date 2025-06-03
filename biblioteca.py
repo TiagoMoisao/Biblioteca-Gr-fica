@@ -1,7 +1,15 @@
-import tkinter as tk
-from tkinter import messagebox, simpledialog
+from customtkinter import *
 
-# === Classes principais ===
+app = CTk()
+app.title("Sistema de Biblioteca")
+app.geometry("600x400")
+set_appearance_mode("dark")
+set_default_color_theme("blue")
+
+app.grid_rowconfigure(0, weight=1)
+app.grid_columnconfigure(0, weight=1)
+
+
 class Livro:
     def __init__(self, titulo, autor, codigo):
         self.titulo = titulo
@@ -74,67 +82,147 @@ class Biblioteca:
             return False
         return aluno.devolver_livro(livro)
 
-# === Interface gráfica ===
+
 class BibliotecaApp:
     def __init__(self, master):
         self.master = master
-        self.master.title("Sistema de Biblioteca")
         self.biblioteca = Biblioteca()
 
-        # Dados de exemplo
         self.biblioteca.adicionar_livro(Livro("Os Lusíadas", "Camões", "L000"))
         self.biblioteca.adicionar_aluno(Aluno("João Silva", "A000"))
 
-        # Botões principais
-        tk.Button(master, text="Adicionar Livro", command=self.adicionar_livro).pack(fill=tk.X)
-        tk.Button(master, text="Adicionar Aluno", command=self.adicionar_aluno).pack(fill=tk.X)
-        tk.Button(master, text="Listar Livros", command=self.listar_livros).pack(fill=tk.X)
-        tk.Button(master, text="Listar Alunos", command=self.listar_alunos).pack(fill=tk.X)
-        tk.Button(master, text="Emprestar Livro", command=self.emprestar_livro).pack(fill=tk.X)
-        tk.Button(master, text="Devolver Livro", command=self.devolver_livro).pack(fill=tk.X)
+      
+        self.main_frame = CTkFrame(master)
+        self.main_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+        
+    
+        self.create_button("Adicionar Livro", self.adicionar_livro)
+        self.create_button("Adicionar Aluno", self.adicionar_aluno)
+        self.create_button("Listar Livros", self.listar_livros)
+        self.create_button("Listar Alunos", self.listar_alunos)
+        self.create_button("Emprestar Livro", self.emprestar_livro)
+        self.create_button("Devolver Livro", self.devolver_livro)
+
+    def create_button(self, text, command):
+        button = CTkButton(
+            self.main_frame,
+            text=text,
+            command=command,
+            width=200,
+            height=40,
+            corner_radius=8,
+            fg_color="#2a2d2e",
+            hover_color="#343638",
+            text_color="white"
+        )
+        button.pack(pady=10, fill="x")
 
     def adicionar_livro(self):
-        titulo = simpledialog.askstring("Título", "Informe o título do livro:")
-        autor = simpledialog.askstring("Autor", "Informe o autor do livro:")
-        codigo = simpledialog.askstring("Código", "Informe o código do livro:")
+        dialog = CTkInputDialog(
+            text="Informe os dados do livro:",
+            title="Adicionar Livro"
+        )
+        
+        titulo = dialog.get_input("Título:")
+        autor = dialog.get_input("Autor:")
+        codigo = dialog.get_input("Código:")
+        
         if titulo and autor and codigo:
             self.biblioteca.adicionar_livro(Livro(titulo, autor, codigo))
-            messagebox.showinfo("Sucesso", "Livro adicionado!")
+            CTkMessagebox(
+                title="Sucesso",
+                message="Livro adicionado!",
+                icon="check",
+                option_1="OK"
+            )
 
     def adicionar_aluno(self):
-        nome = simpledialog.askstring("Nome", "Informe o nome do aluno:")
-        matricula = simpledialog.askstring("Matrícula", "Informe a matrícula do aluno:")
+        dialog = CTkInputDialog(
+            text="Informe os dados do aluno:",
+            title="Adicionar Aluno"
+        )
+        
+        nome = dialog.get_input("Nome:")
+        matricula = dialog.get_input("Matrícula:")
+        
         if nome and matricula:
             self.biblioteca.adicionar_aluno(Aluno(nome, matricula))
-            messagebox.showinfo("Sucesso", "Aluno adicionado!")
+            CTkMessagebox(
+                title="Sucesso",
+                message="Aluno adicionado!",
+                icon="check",
+                option_1="OK"
+            )
 
     def listar_livros(self):
         livros = self.biblioteca.listar_todos_livros()
         texto = "\n".join(str(l) for l in livros) if livros else "Nenhum livro cadastrado."
-        messagebox.showinfo("Livros", texto)
+        CTkMessagebox(
+            title="Livros",
+            message=texto,
+            icon="info",
+            option_1="OK"
+        )
 
     def listar_alunos(self):
         alunos = self.biblioteca.listar_alunos()
         texto = "\n".join(f"{a.matricula} | {a.nome}" for a in alunos) if alunos else "Nenhum aluno cadastrado."
-        messagebox.showinfo("Alunos", texto)
+        CTkMessagebox(
+            title="Alunos",
+            message=texto,
+            icon="info",
+            option_1="OK"
+        )
 
     def emprestar_livro(self):
-        codigo = simpledialog.askstring("Código do Livro", "Informe o código do livro:")
-        matricula = simpledialog.askstring("Matrícula do Aluno", "Informe a matrícula do aluno:")
+        dialog = CTkInputDialog(
+            text="Informe os dados do empréstimo:",
+            title="Emprestar Livro"
+        )
+        
+        codigo = dialog.get_input("Código do Livro:")
+        matricula = dialog.get_input("Matrícula do Aluno:")
+        
         if self.biblioteca.emprestar_livro(codigo, matricula):
-            messagebox.showinfo("Sucesso", "Livro emprestado com sucesso!")
+            CTkMessagebox(
+                title="Sucesso",
+                message="Livro emprestado com sucesso!",
+                icon="check",
+                option_1="OK"
+            )
         else:
-            messagebox.showerror("Erro", "Não foi possível emprestar o livro.")
+            CTkMessagebox(
+                title="Erro",
+                message="Não foi possível emprestar o livro.",
+                icon="cancel",
+                option_1="OK"
+            )
 
     def devolver_livro(self):
-        codigo = simpledialog.askstring("Código do Livro", "Informe o código do livro:")
-        matricula = simpledialog.askstring("Matrícula do Aluno", "Informe a matrícula do aluno:")
+        dialog = CTkInputDialog(
+            text="Informe os dados da devolução:",
+            title="Devolver Livro"
+        )
+        
+        codigo = dialog.get_input("Código do Livro:")
+        matricula = dialog.get_input("Matrícula do Aluno:")
+        
         if self.biblioteca.devolver_livro(codigo, matricula):
-            messagebox.showinfo("Sucesso", "Livro devolvido com sucesso!")
+            CTkMessagebox(
+                title="Sucesso",
+                message="Livro devolvido com sucesso!",
+                icon="check",
+                option_1="OK"
+            )
         else:
-            messagebox.showerror("Erro", "Não foi possível devolver o livro.")
+            CTkMessagebox(
+                title="Erro",
+                message="Não foi possível devolver o livro.",
+                icon="cancel",
+                option_1="OK"
+            )
 
-# Inicializar a aplicação
-root = tk.Tk()
-app = BibliotecaApp(root)
-root.mainloop()
+if __name__ == "__main__":
+    app = CTk()
+    BibliotecaApp(app)
+    app.mainloop()
